@@ -22,8 +22,9 @@
           {{ formatTimestamp(row.createdTime) }}
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="220" fixed="right">
+      <el-table-column label="操作" width="280" fixed="right">
         <template #default="{ row }">
+          <el-button type="primary" link @click="onBrowse(row)">浏览</el-button>
           <el-button type="primary" link @click="openDialog(row)">编辑</el-button>
           <el-button type="primary" link @click="onTest(row)">测试</el-button>
           <el-button type="danger" link @click="onDelete(row)">删除</el-button>
@@ -81,6 +82,7 @@
 
 <script setup lang="ts">
 import { onMounted, reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {
@@ -91,6 +93,8 @@ import {
 } from '@/api/datasource'
 import type { DataSourceRes } from '@/types/models'
 import { formatTimestamp } from '@/utils/format'
+
+const router = useRouter()
 
 const loading = ref(false)
 const records = ref<DataSourceRes[]>([])
@@ -188,6 +192,10 @@ async function onSave(): Promise<void> {
   } finally {
     saving.value = false
   }
+}
+
+function onBrowse(row: DataSourceRes): void {
+  router.push(`/datasource/${row.id}/browser`)
 }
 
 async function onTest(row: DataSourceRes): Promise<void> {

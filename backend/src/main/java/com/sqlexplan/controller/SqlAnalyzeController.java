@@ -4,9 +4,12 @@ import com.sqlexplan.common.Result;
 import com.sqlexplan.model.req.SqlAnalyzeReq;
 import com.sqlexplan.model.req.SqlHistoryDetailReq;
 import com.sqlexplan.model.req.SqlHistoryPageReq;
+import com.sqlexplan.model.req.SqlValidateReq;
 import com.sqlexplan.model.res.SqlAnalyzeRes;
 import com.sqlexplan.model.res.SqlHistoryPageRes;
+import com.sqlexplan.model.res.SqlValidateRes;
 import com.sqlexplan.service.SqlAnalyzeService;
+import com.sqlexplan.service.SqlValidateService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -25,8 +28,11 @@ public class SqlAnalyzeController {
 
   private final SqlAnalyzeService sqlAnalyzeService;
 
-  public SqlAnalyzeController(SqlAnalyzeService sqlAnalyzeService) {
+  private final SqlValidateService sqlValidateService;
+
+  public SqlAnalyzeController(SqlAnalyzeService sqlAnalyzeService, SqlValidateService sqlValidateService) {
     this.sqlAnalyzeService = sqlAnalyzeService;
+    this.sqlValidateService = sqlValidateService;
   }
 
   /**
@@ -39,6 +45,18 @@ public class SqlAnalyzeController {
   @Operation(summary = "SQL 综合分析")
   public Result<SqlAnalyzeRes> analyze(@Valid @RequestBody SqlAnalyzeReq req) {
     return Result.ok(sqlAnalyzeService.analyze(req));
+  }
+
+  /**
+   * 校验 SQL 语法、安全与可选语义（EXPLAIN）。
+   *
+   * @param req 校验请求
+   * @return 校验结果
+   */
+  @PostMapping("/validate")
+  @Operation(summary = "SQL 语法校验")
+  public Result<SqlValidateRes> validate(@Valid @RequestBody SqlValidateReq req) {
+    return Result.ok(sqlValidateService.validate(req));
   }
 
   /**

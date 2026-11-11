@@ -17,7 +17,7 @@ import com.sqlexplan.model.req.SqlAnalyzeReq;
 import com.sqlexplan.model.res.OptimizedSqlRes;
 import com.sqlexplan.model.res.SqlAnalyzeRes;
 import com.sqlexplan.model.res.SqlPlanRes;
-import com.sqlexplan.model.res.SqlSafetyCheckRes;
+import com.sqlexplan.util.SqlTextUtil;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -34,7 +34,7 @@ import org.springframework.util.StringUtils;
 @RequiredArgsConstructor
 public class AnalyzeOrchestrator {
 
-  private final SqlSafetyChecker sqlSafetyChecker;
+  private final SqlSyntaxValidator sqlSyntaxValidator;
 
   private final SqlParseService sqlParseService;
 
@@ -62,14 +62,11 @@ public class AnalyzeOrchestrator {
    * @return 分析结果
    */
   public SqlAnalyzeRes analyze(SqlAnalyzeReq req, TargetJdbcResolver.TargetConnectionContext connectionContext) {
-    String sql = req.getSql().trim();
-    SqlSafetyCheckRes safety = sqlSafetyChecker.check(sql);
-    if (safety.getPassed() == null || !safety.getPassed()) {
-      throw new BizException("SQL 安全校验未通过: " + safety.getReason());
-    }
+    String sql = SqlTextUtil.stripTrailingSemicolons(req.getSql());
     JdbcTemplate jdbcTemplate = connectionContext.getJdbcTemplate();
-    Long dataSourceId = connectionContext.getDataSourceId();
     String schemaName = connectionContext.getDbName();
+    sqlSyntaxValidator.assertValid(sql, jdbcTemplate, schemaName);
+    Long dataSourceId = connectionContext.getDataSourceId();
 
     SqlStructure sqlStructure = sqlParseService.parse(sql);
     List<String> tableNames = extractTableNames(sqlStructure);

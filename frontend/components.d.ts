@@ -9,11 +9,18 @@ declare module 'vue' {
   export interface GlobalComponents {
     AnalyzeResultPanel: typeof import('./src/components/analyze/AnalyzeResultPanel.vue')['default']
     BenchmarkTab: typeof import('./src/components/analyze/BenchmarkTab.vue')['default']
+    DbObjectTree: typeof import('./src/components/dbobject/DbObjectTree.vue')['default']
+    DbRoutineDetailPanel: typeof import('./src/components/dbobject/DbRoutineDetailPanel.vue')['default']
+    DbTableDetailPanel: typeof import('./src/components/dbobject/DbTableDetailPanel.vue')['default']
+    DbViewDetailPanel: typeof import('./src/components/dbobject/DbViewDetailPanel.vue')['default']
     ElAlert: typeof import('element-plus/es')['ElAlert']
     ElAside: typeof import('element-plus/es')['ElAside']
+    ElBadge: typeof import('element-plus/es')['ElBadge']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElCard: typeof import('element-plus/es')['ElCard']
     ElCheckbox: typeof import('element-plus/es')['ElCheckbox']
+    ElCollapse: typeof import('element-plus/es')['ElCollapse']
+    ElCollapseItem: typeof import('element-plus/es')['ElCollapseItem']
     ElContainer: typeof import('element-plus/es')['ElContainer']
     ElDescriptions: typeof import('element-plus/es')['ElDescriptions']
     ElDescriptionsItem: typeof import('element-plus/es')['ElDescriptionsItem']
@@ -48,6 +55,7 @@ declare module 'vue' {
     SemanticTab: typeof import('./src/components/analyze/SemanticTab.vue')['default']
     SqlDiffPanels: typeof import('./src/components/analyze/SqlDiffPanels.vue')['default']
     SqlEditor: typeof import('./src/components/SqlEditor.vue')['default']
+    SqlReadonlyBlock: typeof import('./src/components/dbobject/SqlReadonlyBlock.vue')['default']
   }
   export interface ComponentCustomProperties {
     vLoading: typeof import('element-plus/es')['ElLoadingDirective']

@@ -74,7 +74,20 @@ public class Result<T> {
    * @return 失败结果
    */
   public static <T> Result<T> fail(ResultCode resultCode, String message) {
-    return new Result<>(resultCode.getCode(), message, null, System.currentTimeMillis());
+    return fail(resultCode, message, null);
+  }
+
+  /**
+   * 失败响应（自定义文案与附带数据，如校验详情）。
+   *
+   * @param resultCode 响应码枚举
+   * @param message    提示信息
+   * @param data       附带数据
+   * @param <T>        数据类型
+   * @return 失败结果
+   */
+  public static <T> Result<T> fail(ResultCode resultCode, String message, T data) {
+    return new Result<>(resultCode.getCode(), message, data, System.currentTimeMillis());
   }
 
   /**

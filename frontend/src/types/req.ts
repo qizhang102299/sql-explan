@@ -1,4 +1,4 @@
-import type { Long } from './models'
+import type { DbRoutineTypeEnum, Long } from './models'
 
 export interface DataSourceSaveReq {
   id?: Long
@@ -41,6 +41,11 @@ export interface SqlAnalyzeReq {
   verifyIndexBenefit?: boolean
 }
 
+export interface SqlValidateReq {
+  sql: string
+  dataSourceId?: Long
+}
+
 export interface SqlHistoryPageReq {
   pageNum?: number
   pageSize?: number
@@ -49,4 +54,24 @@ export interface SqlHistoryPageReq {
 
 export interface SqlHistoryDetailReq {
   id: Long
+}
+
+export interface DbObjectListReq {
+  dataSourceId: Long
+}
+
+export interface DbObjectTableDetailReq {
+  dataSourceId: Long
+  tableName: string
+}
+
+export interface DbObjectViewDetailReq {
+  dataSourceId: Long
+  viewName: string
+}
+
+export interface DbObjectRoutineDetailReq {
+  dataSourceId: Long
+  routineName: string
+  routineType: DbRoutineTypeEnum
 }

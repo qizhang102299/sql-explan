@@ -209,3 +209,144 @@ export interface SqlHistoryPageRes {
   total: Long
   records: SqlHistoryRecordSummaryRes[]
 }
+
+export type DbRoutineTypeEnum = 'PROCEDURE' | 'FUNCTION'
+
+export interface DbTableSummaryRes {
+  name: string
+  comment?: string
+  engine?: string
+  estimatedRows?: Long
+  dataSizeBytes?: Long
+  createdTime?: Long
+  updatedTime?: Long
+}
+
+export interface DbViewSummaryRes {
+  name: string
+  comment?: string
+  updatable?: boolean
+}
+
+export interface DbRoutineSummaryRes {
+  name: string
+  comment?: string
+  routineType: DbRoutineTypeEnum
+  createdTime?: Long
+  modifiedTime?: Long
+}
+
+export interface DbObjectListRes {
+  tables: DbTableSummaryRes[]
+  views: DbViewSummaryRes[]
+  routines: DbRoutineSummaryRes[]
+}
+
+export interface DbTableBasicRes {
+  tableName: string
+  engine?: string
+  charset?: string
+  collation?: string
+  estimatedRows?: Long
+  dataSizeBytes?: Long
+  comment?: string
+  createdTime?: Long
+}
+
+export interface DbTableColumnRes {
+  ordinalPosition: number
+  name: string
+  columnType: string
+  nullable?: boolean
+  defaultValue?: string
+  columnKey?: string
+  extra?: string
+  comment?: string
+}
+
+export interface DbTableIndexColumnRes {
+  columnName: string
+  seqInIndex: number
+  cardinality?: Long
+}
+
+export interface DbTableIndexRes {
+  indexName: string
+  unique?: boolean
+  indexType?: string
+  cardinality?: Long
+  columns: DbTableIndexColumnRes[]
+}
+
+export interface DbTableForeignKeyRes {
+  constraintName: string
+  columnNames: string[]
+  referencedTableName: string
+  referencedColumnNames: string[]
+}
+
+export interface DbTableDetailRes {
+  basic?: DbTableBasicRes
+  columns: DbTableColumnRes[]
+  indexes: DbTableIndexRes[]
+  foreignKeys: DbTableForeignKeyRes[]
+  createTableDdl?: string
+}
+
+export interface DbViewColumnRes {
+  ordinalPosition: number
+  name: string
+  columnType: string
+  nullable?: boolean
+  defaultValue?: string
+  comment?: string
+}
+
+export interface DbViewDetailRes {
+  viewName: string
+  columns: DbViewColumnRes[]
+  definitionSql?: string
+  checkOption?: string
+  definer?: string
+  securityType?: string
+}
+
+export interface DbRoutineParameterRes {
+  direction?: string
+  name?: string
+  parameterType?: string
+}
+
+export interface DbRoutineDetailRes {
+  routineName: string
+  routineType: DbRoutineTypeEnum
+  parameters: DbRoutineParameterRes[]
+  returnType?: string
+  sourceDefinition?: string
+  definer?: string
+  deterministic?: boolean
+  sqlDataAccess?: string
+  createdTime?: Long
+  modifiedTime?: Long
+}
+
+export type SqlValidateErrorTypeEnum =
+  | 'SYNTAX'
+  | 'SAFETY'
+  | 'SEMANTIC'
+  | 'PARSER_UNSUPPORTED'
+
+export interface SqlValidateRes {
+  valid?: boolean
+  errorType?: SqlValidateErrorTypeEnum
+  message?: string
+  line?: number
+  column?: number
+  endLine?: number
+  endColumn?: number
+  token?: string
+  mysqlErrorCode?: number
+  suggestions?: string[]
+  statementType?: string
+  involvedTables?: string[]
+}

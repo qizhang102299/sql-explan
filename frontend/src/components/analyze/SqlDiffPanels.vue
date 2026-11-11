@@ -27,13 +27,20 @@ defineProps<{
 <style scoped>
 .diff-row {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 16px;
+  width: 100%;
+  min-width: 0;
+}
+
+.diff-col {
+  min-width: 0;
+  overflow: hidden;
 }
 
 @media (max-width: 960px) {
   .diff-row {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 

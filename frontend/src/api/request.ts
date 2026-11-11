@@ -1,6 +1,7 @@
 import axios, { type AxiosError } from 'axios'
 import { ElMessage } from 'element-plus'
 import type { Result } from '@/types/models'
+import { ApiBizError, isSqlValidateRes } from './errors'
 
 const http = axios.create({
   baseURL: '/api',
@@ -14,6 +15,9 @@ http.interceptors.response.use(
   (response) => {
     const body = response.data as Result<unknown>
     if (body.code !== 0) {
+      if (isSqlValidateRes(body.data)) {
+        return Promise.reject(new ApiBizError(body.message || '请求失败', body.data))
+      }
       ElMessage.error(body.message || '请求失败')
       return Promise.reject(new Error(body.message))
     }

@@ -22,6 +22,12 @@ const router = createRouter({
           meta: { title: '数据源管理' },
         },
         {
+          path: 'datasource/:id/browser',
+          name: 'datasource-browser',
+          component: () => import('@/views/DbObjectBrowserView.vue'),
+          meta: { title: '对象浏览器' },
+        },
+        {
           path: 'history',
           name: 'history',
           component: () => import('@/views/HistoryView.vue'),

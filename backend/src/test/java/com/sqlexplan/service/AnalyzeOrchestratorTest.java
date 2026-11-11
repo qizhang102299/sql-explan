@@ -22,7 +22,6 @@ import com.sqlexplan.model.domain.SqlStructure;
 import com.sqlexplan.model.enums.AnalysisSourceEnum;
 import com.sqlexplan.model.req.SqlAnalyzeReq;
 import com.sqlexplan.model.res.SqlAnalyzeRes;
-import com.sqlexplan.model.res.SqlSafetyCheckRes;
 import java.util.Collections;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,7 +37,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 class AnalyzeOrchestratorTest {
 
   @Mock
-  private SqlSafetyChecker sqlSafetyChecker;
+  private SqlSyntaxValidator sqlSyntaxValidator;
 
   @Mock
   private SqlParseService sqlParseService;
@@ -75,7 +74,7 @@ class AnalyzeOrchestratorTest {
   @BeforeEach
   void setUp() {
     analyzeOrchestrator = new AnalyzeOrchestrator(
-        sqlSafetyChecker,
+        sqlSyntaxValidator,
         sqlParseService,
         schemaMetaService,
         explainService,
@@ -89,9 +88,7 @@ class AnalyzeOrchestratorTest {
 
   @Test
   void orchestrateFullPipeline() {
-    SqlSafetyCheckRes safety = new SqlSafetyCheckRes();
-    safety.setPassed(true);
-    when(sqlSafetyChecker.check(anyString())).thenReturn(safety);
+    org.mockito.Mockito.doNothing().when(sqlSyntaxValidator).assertValid(anyString(), any(), anyString());
 
     SqlStructure structure = new SqlStructure();
     when(sqlParseService.parse(anyString())).thenReturn(structure);

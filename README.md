@@ -2,13 +2,16 @@
 
 输入一条 MySQL `SELECT`，输出语义分析、执行计划解读、索引建议、SQL 改写与可选耗时对比。默认仅启用本地规则引擎，LLM 增强为可选项。
 
+在 **数据源管理** 中可对已配置的目标库进行 **对象浏览器**（表 / 视图 / 存储过程 / 函数）：只读拉取 `information_schema` 与 `SHOW CREATE`，查看字段、索引、外键、DDL 与例程源码；视图支持一键跳转到 SQL 分析页。
+
 ## 架构
 
 ```mermaid
 flowchart LR
   FE[Vue 3 前端] --> API[AnalyzeController]
   API --> ORCH[AnalyzeOrchestrator]
-  ORCH --> SAFE[SqlSafetyChecker]
+  ORCH --> VALID[SqlSyntaxValidator]
+  VALID --> SAFE[SqlSafetyChecker]
   ORCH --> PARSE[SqlParseService]
   ORCH --> META[SchemaMetaService]
   ORCH --> EXPLAIN[ExplainService]
@@ -68,6 +71,18 @@ npm run dev
 
 访问 http://localhost:5173 ，开发代理将 `/api` 转发到 `http://localhost:8081`。
 
+数据源列表点击 **浏览** 进入 `/datasource/{id}/browser` 对象浏览器。
+
+SQL 分析页支持 **语法校验**：工具栏手动校验或输入停顿约 800ms 自动校验；可选带上已选数据源做 EXPLAIN 语义层检查。编辑器内红波浪线标错，下方状态条展示错误类型与修复建议。
+
+## SQL 校验 API
+
+| 路径 | 说明 |
+| --- | --- |
+| `POST /api/sql/validate` | 三层校验：JSqlParser 语法 → `SqlSafetyChecker` 安全 → 可选 EXPLAIN 语义（传 `dataSourceId` 时） |
+
+请求体 `SqlValidateReq`：`sql` 必填，`dataSourceId` 可选。响应 `SqlValidateRes` 含 `valid`、`errorType`（`SYNTAX` / `SAFETY` / `SEMANTIC` / `PARSER_UNSUPPORTED`）、行列号、`suggestions`、语句类型与涉及表名等。分析接口在校验失败时同样返回结构化 `data`，不再混入「安全校验未通过: SQL 解析失败」类文案。
+
 ## Docker Compose 一键启动
 
 含本系统库、目标库、后端与前端（避开宿主 80/8080：前端 **8088**、后端 **8081**、MySQL **3307/3308**）。
@@ -112,9 +127,23 @@ sqlexplan:
 export ANTHROPIC_API_KEY=sk-ant-...
 ```
 
+## 数据源对象浏览器 API
+
+前缀 `/api/datasource/object`，均为 `POST`，JSON  body，时间字段为 **Long 毫秒**。首期实现 `MysqlDbObjectBrowser`，经 `DbObjectBrowser` 抽象便于扩展。
+
+| 路径 | 入参 | 出参 |
+| --- | --- | --- |
+| `/list` | `dataSourceId` | `tables`、`views`、`routines`（含 `PROCEDURE` / `FUNCTION`） |
+| `/table-detail` | `dataSourceId`、`tableName` | 表基本信息、字段、索引、外键、`createTableDdl` |
+| `/view-detail` | `dataSourceId`、`viewName` | 字段、定义 SQL、check option、definer、security type |
+| `/routine-detail` | `dataSourceId`、`routineName`、`routineType` | 参数、返回类型（函数）、源码、属性 |
+
+对象名先经 `information_schema` 参数化存在性校验，再反引号转义后执行 `SHOW CREATE`，不执行用户传入 SQL。
+
 ## 安全说明
 
-- 目标库连接 **只读**（`readOnly=true`），且经 `SqlSafetyChecker` 仅允许单条 `SELECT`。
+- 目标库连接 **只读**（`readOnly=true`），且经 `SqlSyntaxValidator` / `SqlSafetyChecker` 仅允许单条 `SELECT`。
+- 对象浏览器仅查询元数据，复用只读连接池，与分析执行路径隔离。
 - **请在测试库** 配置数据源；基准测试会对目标库真实执行 SQL。
 - 临时索引验证需 **显式双开关**：`SQLEXPLAN_BENCHMARK_ALLOW_TEMP_INDEX_VERIFICATION=true` 且配置项 `sqlexplan.benchmark.allow-temp-index-verification: true`。
 - 数据源密码加密存储，接口响应不返回密码；日志与 LLM 请求不含密码与业务数据行。
@@ -134,7 +163,7 @@ Surefire 已默认注入 `DOCKER_HOST=unix://$HOME/.docker/run/docker.sock`；�
 
 ## 局限性
 
-- 首期仅支持 **MySQL 8.0**。
+- 首期仅支持 **MySQL 8.0**（含对象浏览器）。
 - 规则引擎与 LLM 建议均基于 EXPLAIN 与元数据启发式，不保证等价改写一定最优或语义完全等价（改写结果需看等价校验与人工确认）。
 - 大结果集等价校验有行数上限；超大表 `COUNT(*)` 仅作风险提示。
 - LLM 依赖外网与 API 配额，失败时自动降级为纯规则输出。
