@@ -1,0 +1,700 @@
+[
+  {
+    "id": "idx-01-eq-where",
+    "sql": "SELECT id, amount FROM orders WHERE user_id = 100 AND status = 1",
+    "tables": [
+      {
+        "tableName": "orders",
+        "estimatedRows": 800000,
+        "columns": ["id", "user_id", "status", "amount", "created_at"],
+        "indexes": []
+      }
+    ],
+    "indexDdlPatterns": ["CREATE INDEX.*orders.*user_id.*status"],
+    "rewriteRules": []
+  },
+  {
+    "id": "idx-02-range-after-eq",
+    "sql": "SELECT id FROM orders WHERE user_id = 5 AND created_at >= '2024-01-01'",
+    "tables": [
+      {
+        "tableName": "orders",
+        "estimatedRows": 500000,
+        "columns": ["id", "user_id", "created_at"],
+        "indexes": []
+      }
+    ],
+    "indexDdlPatterns": ["CREATE INDEX.*\\(user_id, created_at\\)"],
+    "rewriteRules": []
+  },
+  {
+    "id": "idx-03-order-by",
+    "sql": "SELECT id, amount FROM orders WHERE status = 1 ORDER BY created_at DESC LIMIT 20",
+    "tables": [
+      {
+        "tableName": "orders",
+        "estimatedRows": 200000,
+        "columns": ["id", "status", "amount", "created_at"],
+        "indexes": []
+      }
+    ],
+    "indexDdlPatterns": ["CREATE INDEX.*status.*created_at"],
+    "rewriteRules": []
+  },
+  {
+    "id": "idx-04-group-by",
+    "sql": "SELECT user_id, COUNT(*) FROM orders WHERE pay_status = 1 GROUP BY user_id",
+    "tables": [
+      {
+        "tableName": "orders",
+        "estimatedRows": 300000,
+        "columns": ["id", "user_id", "pay_status"],
+        "indexes": []
+      }
+    ],
+    "indexDdlPatterns": ["CREATE INDEX.*pay_status.*user_id"],
+    "rewriteRules": []
+  },
+  {
+    "id": "idx-05-join-key",
+    "sql": "SELECT o.id, u.name FROM orders o INNER JOIN users u ON o.user_id = u.id WHERE o.status = 2",
+    "tables": [
+      {
+        "tableName": "orders",
+        "estimatedRows": 400000,
+        "columns": ["id", "user_id", "status"],
+        "indexes": []
+      },
+      {
+        "tableName": "users",
+        "estimatedRows": 50000,
+        "columns": ["id", "name"],
+        "indexes": [{"indexName": "PRIMARY", "columns": ["id"]}]
+      }
+    ],
+    "indexDdlPatterns": ["CREATE INDEX.*orders.*user_id"],
+    "rewriteRules": []
+  },
+  {
+    "id": "idx-06-reuse-existing",
+    "sql": "SELECT id FROM users WHERE status = 1 AND dept_id = 10",
+    "tables": [
+      {
+        "tableName": "users",
+        "estimatedRows": 100000,
+        "columns": ["id", "status", "dept_id"],
+        "indexes": [
+          {
+            "indexName": "idx_status_dept",
+            "columns": ["status", "dept_id"]
+          }
+        ]
+      }
+    ],
+    "indexAdviceTypes": ["REUSE_EXISTING_INDEX"],
+    "rewriteRules": []
+  },
+  {
+    "id": "idx-07-redundant-index",
+    "sql": "SELECT id FROM products WHERE category_id = 3",
+    "tables": [
+      {
+        "tableName": "products",
+        "estimatedRows": 200000,
+        "columns": ["id", "category_id"],
+        "indexes": [
+          {"indexName": "idx_category", "columns": ["category_id"]},
+          {"indexName": "idx_category_id_name", "columns": ["category_id", "name"]}
+        ]
+      }
+    ],
+    "indexAdviceTypes": ["REDUNDANT_INDEX"],
+    "rewriteRules": []
+  },
+  {
+    "id": "idx-08-in-eq",
+    "sql": "SELECT id FROM orders WHERE status IN (1, 2, 3)",
+    "tables": [
+      {
+        "tableName": "orders",
+        "estimatedRows": 150000,
+        "columns": ["id", "status"],
+        "indexes": []
+      }
+    ],
+    "indexDdlPatterns": ["CREATE INDEX.*status"],
+    "rewriteRules": []
+  },
+  {
+    "id": "idx-09-like-prefix",
+    "sql": "SELECT id FROM users WHERE email LIKE 'ops%'",
+    "tables": [
+      {
+        "tableName": "users",
+        "estimatedRows": 80000,
+        "columns": ["id", "email"],
+        "indexes": []
+      }
+    ],
+    "indexDdlPatterns": ["CREATE INDEX.*email"],
+    "rewriteRules": []
+  },
+  {
+    "id": "idx-10-multi-col-where",
+    "sql": "SELECT id FROM transactions WHERE account_id = 9 AND biz_date BETWEEN '2024-06-01' AND '2024-06-30'",
+    "tables": [
+      {
+        "tableName": "transactions",
+        "estimatedRows": 2000000,
+        "columns": ["id", "account_id", "biz_date"],
+        "indexes": []
+      }
+    ],
+    "indexDdlPatterns": ["CREATE INDEX.*account_id.*biz_date"],
+    "rewriteRules": []
+  },
+  {
+    "id": "idx-11-covering-single-table",
+    "sql": "SELECT id, status FROM users WHERE status = 2",
+    "tables": [
+      {
+        "tableName": "users",
+        "estimatedRows": 60000,
+        "columns": ["id", "status", "name"],
+        "indexes": []
+      }
+    ],
+    "indexAdviceTypes": ["COVERING_INDEX"],
+    "rewriteRules": []
+  },
+  {
+    "id": "idx-12-alias-where",
+    "sql": "SELECT o.id FROM orders o WHERE o.merchant_id = 77",
+    "tables": [
+      {
+        "tableName": "orders",
+        "estimatedRows": 900000,
+        "columns": ["id", "merchant_id"],
+        "indexes": []
+      }
+    ],
+    "indexDdlPatterns": ["CREATE INDEX.*merchant_id"],
+    "rewriteRules": []
+  },
+  {
+    "id": "idx-13-left-join-filter",
+    "sql": "SELECT l.id FROM logs l LEFT JOIN users u ON l.user_id = u.id WHERE l.level = 'ERROR'",
+    "tables": [
+      {
+        "tableName": "logs",
+        "estimatedRows": 1200000,
+        "columns": ["id", "user_id", "level"],
+        "indexes": []
+      },
+      {
+        "tableName": "users",
+        "estimatedRows": 50000,
+        "columns": ["id"],
+        "indexes": [{"indexName": "PRIMARY", "columns": ["id"]}]
+      }
+    ],
+    "indexDdlPatterns": ["CREATE INDEX.*logs.*level"],
+    "rewriteRules": []
+  },
+  {
+    "id": "idx-14-not-equal-range",
+    "sql": "SELECT id FROM inventory WHERE warehouse_id = 3 AND qty != 0",
+    "tables": [
+      {
+        "tableName": "inventory",
+        "estimatedRows": 400000,
+        "columns": ["id", "warehouse_id", "qty"],
+        "indexes": []
+      }
+    ],
+    "indexDdlPatterns": ["CREATE INDEX.*warehouse_id.*qty"],
+    "rewriteRules": []
+  },
+  {
+    "id": "idx-15-order-only",
+    "sql": "SELECT id, score FROM students ORDER BY score DESC LIMIT 50",
+    "tables": [
+      {
+        "tableName": "students",
+        "estimatedRows": 30000,
+        "columns": ["id", "score"],
+        "indexes": []
+      }
+    ],
+    "indexDdlPatterns": ["CREATE INDEX.*score"],
+    "rewriteRules": []
+  },
+  {
+    "id": "rw-01-select-star",
+    "sql": "SELECT * FROM users WHERE id = 1",
+    "tables": [
+      {
+        "tableName": "users",
+        "estimatedRows": 10000,
+        "columns": ["id", "name", "email"],
+        "indexes": [{"indexName": "PRIMARY", "columns": ["id"]}]
+      }
+    ],
+    "rewriteRules": ["SELECT_STAR_NARROW"],
+    "rewriteSqlPatterns": ["SELECT id, name, email FROM users"]
+  },
+  {
+    "id": "rw-02-or-union",
+    "sql": "SELECT id, name FROM users WHERE status = 1 OR status = 2",
+    "tables": [
+      {
+        "tableName": "users",
+        "estimatedRows": 80000,
+        "columns": ["id", "name", "status"],
+        "indexes": []
+      }
+    ],
+    "indexDdlPatterns": ["CREATE INDEX.*status"],
+    "rewriteRules": ["OR_TO_UNION_ALL"],
+    "rewriteSqlPatterns": ["UNION ALL"]
+  },
+  {
+    "id": "rw-03-in-subquery",
+    "sql": "SELECT id, name FROM users WHERE id IN (SELECT user_id FROM orders WHERE total > 1000)",
+    "tables": [
+      {
+        "tableName": "users",
+        "estimatedRows": 50000,
+        "columns": ["id", "name"],
+        "indexes": []
+      },
+      {
+        "tableName": "orders",
+        "estimatedRows": 600000,
+        "columns": ["user_id", "total"],
+        "indexes": []
+      }
+    ],
+    "rewriteRules": ["IN_SUBQUERY_TO_EXISTS"]
+  },
+  {
+    "id": "rw-04-deep-pagination",
+    "sql": "SELECT * FROM orders WHERE status = 1 ORDER BY id LIMIT 20 OFFSET 50000",
+    "tables": [
+      {
+        "tableName": "orders",
+        "estimatedRows": 2000000,
+        "columns": ["id", "status", "amount"],
+        "indexes": [{"indexName": "PRIMARY", "columns": ["id"]}]
+      }
+    ],
+    "rewriteRules": ["DEEP_PAGINATION_DEFERRED_JOIN", "SELECT_STAR_NARROW"],
+    "rewriteSqlPatterns": ["INNER JOIN", "page_ids"]
+  },
+  {
+    "id": "rw-05-redundant-distinct",
+    "sql": "SELECT DISTINCT id, name FROM users WHERE status = 1",
+    "tables": [
+      {
+        "tableName": "users",
+        "estimatedRows": 70000,
+        "columns": ["id", "name", "status"],
+        "indexes": []
+      }
+    ],
+    "indexDdlPatterns": ["CREATE INDEX.*status"],
+    "rewriteRules": ["REMOVE_REDUNDANT_DISTINCT"],
+    "rewriteSqlPatterns": ["SELECT id, name FROM users"]
+  },
+  {
+    "id": "rw-06-redundant-order-by",
+    "sql": "SELECT id, name FROM users WHERE status = 1 ORDER BY name",
+    "tables": [
+      {
+        "tableName": "users",
+        "estimatedRows": 65000,
+        "columns": ["id", "name", "status"],
+        "indexes": []
+      }
+    ],
+    "indexDdlPatterns": ["CREATE INDEX.*status.*name"],
+    "rewriteRules": ["REMOVE_REDUNDANT_ORDER_BY"]
+  },
+  {
+    "id": "rw-07-star-and-order",
+    "sql": "SELECT * FROM products WHERE category_id = 5 ORDER BY updated_at DESC",
+    "tables": [
+      {
+        "tableName": "products",
+        "estimatedRows": 120000,
+        "columns": ["id", "category_id", "updated_at", "title"],
+        "indexes": []
+      }
+    ],
+    "indexDdlPatterns": ["CREATE INDEX.*category_id.*updated_at"],
+    "rewriteRules": ["SELECT_STAR_NARROW", "REMOVE_REDUNDANT_ORDER_BY"]
+  },
+  {
+    "id": "rw-08-deep-offset-only",
+    "sql": "SELECT id FROM articles ORDER BY published_at LIMIT 10 OFFSET 200000",
+    "tables": [
+      {
+        "tableName": "articles",
+        "estimatedRows": 1000000,
+        "columns": ["id", "published_at"],
+        "indexes": [{"indexName": "PRIMARY", "columns": ["id"]}]
+      }
+    ],
+    "rewriteRules": ["DEEP_PAGINATION_DEFERRED_JOIN"],
+    "rewriteSqlPatterns": ["OFFSET 200000"]
+  },
+  {
+    "id": "pi-01-like-leading",
+    "sql": "SELECT id, email FROM users WHERE email LIKE '%@example.com'",
+    "tables": [
+      {
+        "tableName": "users",
+        "estimatedRows": 120000,
+        "columns": ["id", "email"]
+      }
+    ],
+    "planIssueTypes": ["LIKE_LEADING_WILDCARD"],
+    "rewriteRules": ["LIKE_LEADING_WILDCARD"]
+  },
+  {
+    "id": "pi-02-not-in",
+    "sql": "SELECT id FROM users WHERE dept_id NOT IN (1, 2, 3)",
+    "tables": [
+      {
+        "tableName": "users",
+        "estimatedRows": 90000,
+        "columns": ["id", "dept_id"]
+      }
+    ],
+    "planIssueTypes": ["NON_SARGABLE_OPERATOR"],
+    "indexAdviceTypes": ["NON_SARGABLE_OPERATOR_HINT"]
+  },
+  {
+    "id": "pi-03-not-equal",
+    "sql": "SELECT id FROM products WHERE status <> 0",
+    "tables": [
+      {
+        "tableName": "products",
+        "estimatedRows": 150000,
+        "columns": ["id", "status"]
+      }
+    ],
+    "planIssueTypes": ["NON_SARGABLE_OPERATOR"],
+    "indexAdviceTypes": ["NON_SARGABLE_OPERATOR_HINT"]
+  },
+  {
+    "id": "pi-04-limit-no-order",
+    "sql": "SELECT id, name FROM users WHERE status = 1 LIMIT 50",
+    "tables": [
+      {
+        "tableName": "users",
+        "estimatedRows": 80000,
+        "columns": ["id", "name", "status"],
+        "indexes": [{"indexName": "PRIMARY", "columns": ["id"]}]
+      }
+    ],
+    "planIssueTypes": ["LIMIT_WITHOUT_ORDER_BY"],
+    "rewriteRules": ["LIMIT_ADD_ORDER_BY"],
+    "indexDdlPatterns": ["CREATE INDEX.*status"]
+  },
+  {
+    "id": "pi-05-count-star",
+    "sql": "SELECT COUNT(*) FROM orders WHERE pay_status = 1",
+    "tables": [
+      {
+        "tableName": "orders",
+        "estimatedRows": 2500000,
+        "columns": ["id", "pay_status"]
+      }
+    ],
+    "planIssueTypes": ["COUNT_STAR_LARGE_TABLE"],
+    "rewriteRules": ["COUNT_STAR_LARGE_TABLE_HINT"]
+  },
+  {
+    "id": "pi-06-join-type-mismatch",
+    "sql": "SELECT o.id FROM orders o INNER JOIN legacy_users u ON o.user_id = u.legacy_id",
+    "tables": [
+      {
+        "tableName": "orders",
+        "estimatedRows": 300000,
+        "columns": [
+          {"name": "id", "dataType": "bigint"},
+          {"name": "user_id", "dataType": "bigint"}
+        ]
+      },
+      {
+        "tableName": "legacy_users",
+        "estimatedRows": 40000,
+        "columns": [
+          {"name": "legacy_id", "dataType": "varchar"},
+          {"name": "name", "dataType": "varchar"}
+        ]
+      }
+    ],
+    "planIssueTypes": ["JOIN_COLLATION_MISMATCH"],
+    "indexDdlPatterns": ["CREATE INDEX.*orders.*user_id"]
+  },
+  {
+    "id": "pi-07-year-function",
+    "sql": "SELECT id FROM orders WHERE YEAR(created_at) = 2024",
+    "tables": [
+      {
+        "tableName": "orders",
+        "estimatedRows": 500000,
+        "columns": ["id", "created_at"]
+      }
+    ],
+    "planIssueTypes": ["INDEX_COLUMN_FUNCTION"],
+    "rewriteRules": ["FUNCTION_ON_COLUMN_TO_RANGE"],
+    "rewriteSqlPatterns": ["created_at >= '2024-01-01'"]
+  },
+  {
+    "id": "pi-08-expression-on-column",
+    "sql": "SELECT id FROM inventory WHERE qty + 1 = 10",
+    "tables": [
+      {
+        "tableName": "inventory",
+        "estimatedRows": 60000,
+        "columns": ["id", "qty"]
+      }
+    ],
+    "planIssueTypes": ["INDEX_COLUMN_EXPRESSION"]
+  },
+  {
+    "id": "pi-09-correlated-exists",
+    "sql": "SELECT id, name FROM users u WHERE EXISTS (SELECT 1 FROM orders o WHERE o.user_id = u.id AND o.status = 1)",
+    "tables": [
+      {
+        "tableName": "users",
+        "estimatedRows": 70000,
+        "columns": ["id", "name"]
+      },
+      {
+        "tableName": "orders",
+        "estimatedRows": 900000,
+        "columns": ["user_id", "status"]
+      }
+    ],
+    "planIssueTypes": ["CORRELATED_SUBQUERY"],
+    "rewriteRules": ["CORRELATED_SUBQUERY_TO_JOIN"]
+  },
+  {
+    "id": "pi-10-implicit-cast",
+    "sql": "SELECT id FROM users WHERE id = '12345'",
+    "tables": [
+      {
+        "tableName": "users",
+        "estimatedRows": 50000,
+        "columns": [{"name": "id", "dataType": "bigint"}, {"name": "name", "dataType": "varchar"}]
+      }
+    ],
+    "planIssueTypes": ["IMPLICIT_TYPE_CONVERSION"],
+    "rewriteRules": ["IMPLICIT_CAST_NORMALIZE"],
+    "rewriteSqlPatterns": ["id = 12345"]
+  },
+  {
+    "id": "idx-16-duplicate-index",
+    "sql": "SELECT id FROM events WHERE user_id = 9 AND event_type = 'login'",
+    "tables": [
+      {
+        "tableName": "events",
+        "estimatedRows": 300000,
+        "columns": ["id", "user_id", "event_type"],
+        "indexes": [
+          {"indexName": "idx_user_evt_a", "columns": ["user_id", "event_type"]},
+          {"indexName": "idx_user_evt_b", "columns": ["user_id", "event_type"]}
+        ]
+      }
+    ],
+    "indexAdviceTypes": ["DUPLICATE_INDEX", "REUSE_EXISTING_INDEX"]
+  },
+  {
+    "id": "idx-17-covering-projection",
+    "sql": "SELECT id, status, name FROM users WHERE status = 1",
+    "tables": [
+      {
+        "tableName": "users",
+        "estimatedRows": 80000,
+        "columns": ["id", "status", "name"],
+        "indexes": []
+      }
+    ],
+    "indexAdviceTypes": ["COVERING_INDEX"],
+    "indexDdlPatterns": ["CREATE INDEX.*status.*name"]
+  },
+  {
+    "id": "idx-18-where-order-composite",
+    "sql": "SELECT id FROM logs WHERE level = 'WARN' ORDER BY created_at DESC LIMIT 100",
+    "tables": [
+      {
+        "tableName": "logs",
+        "estimatedRows": 2000000,
+        "columns": ["id", "level", "created_at"],
+        "indexes": []
+      }
+    ],
+    "indexDdlPatterns": ["CREATE INDEX.*level.*created_at"]
+  },
+  {
+    "id": "rw-09-not-in-subquery",
+    "sql": "SELECT id FROM users WHERE id NOT IN (SELECT user_id FROM orders WHERE total < 0)",
+    "tables": [
+      {
+        "tableName": "users",
+        "estimatedRows": 60000,
+        "columns": ["id"],
+        "indexes": []
+      },
+      {
+        "tableName": "orders",
+        "estimatedRows": 500000,
+        "columns": ["user_id", "total"]
+      }
+    ],
+    "planIssueTypes": ["NON_SARGABLE_OPERATOR"],
+    "rewriteRules": ["NOT_IN_TO_NOT_EXISTS"]
+  },
+  {
+    "id": "rw-10-in-subquery-join",
+    "sql": "SELECT u.id FROM users u WHERE u.id IN (SELECT o.user_id FROM orders o WHERE o.status = 2)",
+    "tables": [
+      {
+        "tableName": "users",
+        "estimatedRows": 55000,
+        "columns": ["id"]
+      },
+      {
+        "tableName": "orders",
+        "estimatedRows": 700000,
+        "columns": ["user_id", "status"]
+      }
+    ],
+    "rewriteRules": ["IN_SUBQUERY_TO_EXISTS", "IN_SUBQUERY_TO_JOIN"]
+  },
+  {
+    "id": "rw-11-like-and-index",
+    "sql": "SELECT id FROM posts WHERE title LIKE '%mysql%'",
+    "tables": [
+      {
+        "tableName": "posts",
+        "estimatedRows": 400000,
+        "columns": ["id", "title"]
+      }
+    ],
+    "planIssueTypes": ["LIKE_LEADING_WILDCARD"],
+    "rewriteRules": ["LIKE_LEADING_WILDCARD"],
+    "rewriteSqlPatterns": ["FULLTEXT"]
+  },
+  {
+    "id": "rw-12-implicit-and-star",
+    "sql": "SELECT * FROM accounts WHERE account_no = 10001",
+    "tables": [
+      {
+        "tableName": "accounts",
+        "estimatedRows": 20000,
+        "columns": [{"name": "account_no", "dataType": "varchar"}, {"name": "balance", "dataType": "decimal"}]
+      }
+    ],
+    "planIssueTypes": ["IMPLICIT_TYPE_CONVERSION"],
+    "rewriteRules": ["SELECT_STAR_NARROW", "IMPLICIT_CAST_NORMALIZE"]
+  },
+  {
+    "id": "rw-13-limit-stability",
+    "sql": "SELECT id FROM messages LIMIT 30",
+    "tables": [
+      {
+        "tableName": "messages",
+        "estimatedRows": 500000,
+        "columns": ["id", "body"],
+        "indexes": [{"indexName": "PRIMARY", "columns": ["id"]}]
+      }
+    ],
+    "planIssueTypes": ["LIMIT_WITHOUT_ORDER_BY"],
+    "rewriteRules": ["LIMIT_ADD_ORDER_BY"],
+    "rewriteSqlPatterns": ["ORDER BY.*LIMIT 30"]
+  },
+  {
+    "id": "rw-14-count-only",
+    "sql": "SELECT COUNT(*) FROM page_views",
+    "tables": [
+      {
+        "tableName": "page_views",
+        "estimatedRows": 5000000,
+        "columns": ["id"]
+      }
+    ],
+    "planIssueTypes": ["COUNT_STAR_LARGE_TABLE"],
+    "rewriteRules": ["COUNT_STAR_LARGE_TABLE_HINT"],
+    "rewriteSqlPatterns": ["information_schema"]
+  },
+  {
+    "id": "rw-04-plan-deep",
+    "sql": "SELECT * FROM orders WHERE status = 1 ORDER BY id LIMIT 20 OFFSET 50000",
+    "tables": [
+      {
+        "tableName": "orders",
+        "estimatedRows": 2000000,
+        "columns": ["id", "status", "amount"],
+        "indexes": [{"indexName": "PRIMARY", "columns": ["id"]}]
+      }
+    ],
+    "planIssueTypes": ["DEEP_PAGINATION"],
+    "rewriteRules": ["DEEP_PAGINATION_DEFERRED_JOIN", "SELECT_STAR_NARROW"]
+  },
+  {
+    "id": "pi-11-neq-and-index",
+    "sql": "SELECT id FROM sku WHERE warehouse_id = 8 AND deleted <> 1",
+    "tables": [
+      {
+        "tableName": "sku",
+        "estimatedRows": 180000,
+        "columns": ["id", "warehouse_id", "deleted"]
+      }
+    ],
+    "planIssueTypes": ["NON_SARGABLE_OPERATOR"],
+    "indexAdviceTypes": ["NON_SARGABLE_OPERATOR_HINT"],
+    "indexDdlPatterns": ["CREATE INDEX.*warehouse_id.*deleted"]
+  },
+  {
+    "id": "idx-19-group-covering",
+    "sql": "SELECT status, COUNT(*) AS cnt FROM tickets WHERE region = 'cn' GROUP BY status",
+    "tables": [
+      {
+        "tableName": "tickets",
+        "estimatedRows": 600000,
+        "columns": ["id", "region", "status"]
+      }
+    ],
+    "indexDdlPatterns": ["CREATE INDEX.*region.*status"]
+  },
+  {
+    "id": "rw-15-or-and-plan",
+    "sql": "SELECT id FROM coupons WHERE channel = 'app' OR channel = 'web'",
+    "tables": [
+      {
+        "tableName": "coupons",
+        "estimatedRows": 90000,
+        "columns": ["id", "channel"]
+      }
+    ],
+    "rewriteRules": ["OR_TO_UNION_ALL"],
+    "indexDdlPatterns": ["CREATE INDEX.*channel"]
+  },
+  {
+    "id": "pi-12-function-date",
+    "sql": "SELECT id FROM sessions WHERE DATE(login_at) = '2024-06-01'",
+    "tables": [
+      {
+        "tableName": "sessions",
+        "estimatedRows": 220000,
+        "columns": ["id", "login_at"]
+      }
+    ],
+    "planIssueTypes": ["INDEX_COLUMN_FUNCTION"]
+  }
+]

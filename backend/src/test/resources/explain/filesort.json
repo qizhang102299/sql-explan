@@ -1,0 +1,16 @@
+{
+  "query_block": {
+    "select_id": 1,
+    "ordering_operation": {
+      "using_filesort": true,
+      "table": {
+        "table_name": "orders",
+        "access_type": "index",
+        "key": "idx_user_id",
+        "rows_examined_per_scan": 5000,
+        "rows_produced_per_join": 5000,
+        "filtered": "100.00"
+      }
+    }
+  }
+}

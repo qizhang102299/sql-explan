@@ -1,0 +1,26 @@
+---
+description: Java 开发规范（阿里巴巴规范 + 项目约定）
+globs: "**/*.java"
+alwaysApply: true
+---
+
+# 项目约定
+
+- 回复、注释、交流一律使用中文；源码与注释使用 UTF-8 编码。
+- 遵守《阿里巴巴 Java 开发手册》。
+- 禁止使用行尾注释（注释必须单独一行）。
+- 接口（Controller 方法、Service 接口）必须有符合 Javadoc 规范的中文注释（含 `@param`、`@return`）。
+- 入参类以 `Req` 结尾，返回值封装类以 `Res` 结尾，且类与字段均要有 Swagger 注解（`@Schema`）。
+- 所有时间字段统一使用 `Long` 毫秒时间戳：数据库 Entity、Req、Res 均如此；禁止在接口层暴露 `OffsetDateTime`、`LocalDateTime`、`Date`、`LocalDate`。数据库时间列使用 `BIGINT`。
+- 修改代码前先评估影响范围（调用方、公共类、配置、数据库），尽量不影响已有功能；完成后列出改动文件与影响说明。
+
+# 安全约定
+
+- 对目标库执行的 SQL 必须先经过 `SqlSafetyChecker`，仅允许单条 SELECT。
+- 日志、LLM 请求中不得出现数据源密码和业务数据行。
+- 密码加密存储，不得明文入库。
+
+# 分层约定
+
+- Controller 只做参数校验与转发；业务在 Service；外部调用（LLM、目标库）放 Manager 层。
+- 魔法值使用常量或枚举；集合初始化指定容量；日志使用占位符。

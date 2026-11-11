@@ -1,0 +1,26 @@
+{
+  "query_block": {
+    "select_id": 1,
+    "nested_loop": [
+      {
+        "table": {
+          "table_name": "users",
+          "access_type": "ref",
+          "key": "PRIMARY",
+          "rows_examined_per_scan": 1,
+          "filtered": "100.00"
+        }
+      },
+      {
+        "table": {
+          "table_name": "orders",
+          "access_type": "ALL",
+          "possible_keys": ["idx_user_id"],
+          "key": null,
+          "rows_examined_per_scan": 300000,
+          "filtered": "100.00"
+        }
+      }
+    ]
+  }
+}

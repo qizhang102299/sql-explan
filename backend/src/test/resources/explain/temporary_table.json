@@ -1,0 +1,16 @@
+{
+  "query_block": {
+    "select_id": 1,
+    "grouping_operation": {
+      "using_temporary_table": true,
+      "table": {
+        "table_name": "orders",
+        "access_type": "index",
+        "key": "idx_user_id",
+        "rows_examined_per_scan": 80000,
+        "rows_produced_per_join": 80000,
+        "filtered": "100.00"
+      }
+    }
+  }
+}

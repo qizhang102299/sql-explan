@@ -1,0 +1,65 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: sqlexplan-backend
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://sqlexplan-mysql:3306/sqlexplan?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SQLEXPLAN_AES_KEY: ${SQLEXPLAN_AES_KEY:-changeme-sqlexplan-dev-aes-key-32b}
+      SQLEXPLAN_BENCHMARK_ALLOW_TEMP_INDEX_VERIFICATION: ${SQLEXPLAN_BENCHMARK_ALLOW_TEMP_INDEX_VERIFICATION:-false}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      SQLEXPLAN_LLM_ENABLED: ${SQLEXPLAN_LLM_ENABLED:-false}
+    depends_on:
+      sqlexplan-mysql:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: sqlexplan-frontend
+    ports:
+      - "8088:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  sqlexplan-mysql:
+    image: mysql:8.0
+    container_name: sqlexplan-mysql
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: sqlexplan
+      TZ: Asia/Shanghai
+    volumes:
+      - ./backend/src/main/resources/db/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  target-mysql:
+    image: mysql:8.0
+    container_name: sqlexplan-target-mysql
+    ports:
+      - "3308:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: demo
+      TZ: Asia/Shanghai
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 10

@@ -1,0 +1,14 @@
+{
+  "query_block": {
+    "select_id": 1,
+    "table": {
+      "table_name": "orders",
+      "access_type": "ALL",
+      "possible_keys": ["idx_user_id", "idx_status"],
+      "key": null,
+      "rows_examined_per_scan": 120000,
+      "rows_produced_per_join": 1200,
+      "filtered": "1.00"
+    }
+  }
+}

@@ -1,0 +1,22 @@
+请分析以下 SQL 并按要求返回 JSON。
+
+## 原始 SQL
+{{SQL}}
+
+## SQL 结构摘要（JSON）
+{{SQL_STRUCTURE_JSON}}
+
+## 表结构元数据（JSON，无数据行）
+{{SCHEMA_META_JSON}}
+
+## 执行计划（JSON）
+{{EXPLAIN_PLAN_JSON}}
+
+## 规则引擎计划解读摘要
+{{PLAN_INTERPRETATION_SUMMARY}}
+
+## 规则引擎索引建议摘要
+{{RULE_INDEX_SUMMARY}}
+
+## 规则引擎改写建议
+{{RULE_REWRITE_SUMMARY}}

@@ -1,0 +1,58 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: sql-explan
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3307/sqlexplan?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+  global-config:
+    db-config:
+      id-type: auto
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    root: INFO
+    com.sqlexplan: INFO
+
+sqlexplan:
+  crypto:
+    aes-key: ${SQLEXPLAN_AES_KEY:changeme-sqlexplan-dev-aes-key-32b}
+  target-datasource:
+    connection-timeout-ms: 5000
+    query-timeout-seconds: 30
+    maximum-pool-size: 3
+    minimum-idle: 0
+  schema-meta:
+    cache-ttl-seconds: 60
+  explain:
+    large-scan-rows-threshold: 100000
+    deep-pagination-offset-threshold: 10000
+  llm:
+    enabled: false
+    base-url: https://api.anthropic.com
+    model-id: claude-sonnet-5-5
+    protocol: ANTHROPIC
+    connect-timeout-ms: 10000
+    read-timeout-ms: 120000
+    max-output-tokens: 8192
+    cache-ttl-seconds: 3600
+  result-equivalence:
+    max-rows-for-checksum: 5000
+  benchmark:
+    max-rows-per-execution: 50000
+    allow-temp-index-verification: false
