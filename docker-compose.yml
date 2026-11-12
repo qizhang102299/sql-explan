@@ -9,7 +9,7 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://sqlexplan-mysql:3306/sqlexplan?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_DATASOURCE_PASSWORD: ${SQLEXPLAN_DB_PASSWORD:?请先设置环境变量 SQLEXPLAN_DB_PASSWORD，可参考 .env.example}
       SQLEXPLAN_AES_KEY: ${SQLEXPLAN_AES_KEY:?请先设置环境变量 SQLEXPLAN_AES_KEY，可参考 .env.example}
       SQLEXPLAN_BENCHMARK_ALLOW_TEMP_INDEX_VERIFICATION: ${SQLEXPLAN_BENCHMARK_ALLOW_TEMP_INDEX_VERIFICATION:-false}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
@@ -36,14 +36,14 @@ services:
     ports:
       - "3307:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: ${SQLEXPLAN_DB_PASSWORD:?请先设置环境变量 SQLEXPLAN_DB_PASSWORD，可参考 .env.example}
       MYSQL_DATABASE: sqlexplan
       TZ: Asia/Shanghai
     volumes:
       - ./backend/src/main/resources/db/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p\"$$MYSQL_ROOT_PASSWORD\""]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -54,12 +54,12 @@ services:
     ports:
       - "3308:3306"
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: ${TARGET_DB_PASSWORD:?请先设置环境变量 TARGET_DB_PASSWORD，可参考 .env.example}
       MYSQL_DATABASE: demo
       TZ: Asia/Shanghai
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-proot"]
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p\"$$MYSQL_ROOT_PASSWORD\""]
       interval: 5s
       timeout: 5s
       retries: 10

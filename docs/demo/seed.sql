@@ -1,5 +1,5 @@
 -- 演示库造数脚本：users 约 2 万行，orders 约 20 万行
--- 在目标库 demo（端口 3308）执行：mysql -h127.0.0.1 -P3308 -uroot -proot demo < docs/demo/seed.sql
+-- 在目标库 demo（端口 3308）执行：mysql -h127.0.0.1 -P3308 -uroot -p demo < docs/demo/seed.sql（按提示输入 TARGET_DB_PASSWORD）
 SET SESSION cte_max_recursion_depth = 300000;
 DROP TABLE IF EXISTS orders;
 DROP TABLE IF EXISTS users;

@@ -49,7 +49,8 @@ docker compose up -d sqlexplan-mysql target-mysql
 演示造数（可选）：
 
 ```bash
-docker exec -i sqlexplan-target-mysql mysql -uroot -proot demo < docs/demo/seed.sql
+set -a; source .env; set +a
+docker exec -i sqlexplan-target-mysql sh -c 'mysql -uroot -p"$MYSQL_ROOT_PASSWORD" demo' < docs/demo/seed.sql
 ```
 
 ### 2. 后端（8081）
@@ -117,11 +118,15 @@ openssl rand -base64 32
 ```
 
 `docker compose` 会自动读取 `.env`；本机直接运行后端时先 `set -a; source .env; set +a`。
-注意：更换密钥后，用旧密钥保存的数据源密码无法解密，需要在「数据源管理」中重新保存。
+注意：
+- 更换 AES 密钥后，用旧密钥保存的数据源密码无法解密，需要在「数据源管理」中重新保存。
+- MySQL 的 root 密码只在数据目录首次初始化时生效；已存在的容器更换密码后，需要删除容器和数据卷重新初始化（数据会丢失）。
 
 | 变量 | 说明 | 默认 |
 | --- | --- | --- |
 | `SQLEXPLAN_AES_KEY` | **必填**。数据源密码 AES 密钥，至少 32 个字符，不能含 `changeme` 等占位词；未设置或不合规时服务拒绝启动 | 无默认值 |
+| `SQLEXPLAN_DB_PASSWORD` | **必填**。本系统库 MySQL 的 root 密码，后端也用它连接系统库 | 无默认值 |
+| `TARGET_DB_PASSWORD` | **必填**。演示目标库 MySQL 的 root 密码 | 无默认值 |
 | `SQLEXPLAN_BENCHMARK_ALLOW_TEMP_INDEX_VERIFICATION` | 是否允许基准测试在目标库创建/删除临时索引以验证收益 | `false` |
 | `sqlexplan.llm.enabled`（配置） | 是否调用 LLM | `false` |
 | `ANTHROPIC_API_KEY` | Claude API 密钥；仅在 `sqlexplan.llm.enabled=true` 时需要 | 未设置则 LLM 调用失败并降级 |
