@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Base64;
+import java.util.Locale;
 import javax.crypto.Cipher;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
@@ -22,6 +23,10 @@ public class AesCryptoManager {
   private static final int GCM_IV_LENGTH = 12;
 
   private static final int GCM_TAG_LENGTH = 128;
+
+  private static final int MIN_KEY_LENGTH = 32;
+
+  private static final String PLACEHOLDER_KEYWORD = "changeme";
 
   private final byte[] aesKeyBytes;
 
@@ -92,7 +97,14 @@ public class AesCryptoManager {
 
   private static byte[] resolveKeyBytes(String configuredKey) {
     if (configuredKey == null || configuredKey.isBlank()) {
-      throw new BizException("未配置 sqlexplan.crypto.aes-key");
+      throw new IllegalStateException(
+          "未配置 AES 密钥：请设置环境变量 SQLEXPLAN_AES_KEY（可用 openssl rand -base64 32 生成）");
+    }
+    if (configuredKey.toLowerCase(Locale.ROOT).contains(PLACEHOLDER_KEYWORD)) {
+      throw new IllegalStateException("AES 密钥不能使用 changeme 等示例占位值，请换成随机生成的密钥");
+    }
+    if (configuredKey.length() < MIN_KEY_LENGTH) {
+      throw new IllegalStateException("AES 密钥长度不足 " + MIN_KEY_LENGTH + " 个字符，请使用 openssl rand -base64 32 生成");
     }
     try {
       byte[] decoded = Base64.getDecoder().decode(configuredKey);

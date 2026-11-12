@@ -108,9 +108,20 @@ docker compose up -d --build
 
 ## 环境变量
 
+首次使用先生成密钥并写入本地 `.env`（已被 `.gitignore` 忽略，切勿提交）：
+
+```bash
+cp .env.example .env
+# 把下面命令的输出填到 .env 的 SQLEXPLAN_AES_KEY
+openssl rand -base64 32
+```
+
+`docker compose` 会自动读取 `.env`；本机直接运行后端时先 `set -a; source .env; set +a`。
+注意：更换密钥后，用旧密钥保存的数据源密码无法解密，需要在「数据源管理」中重新保存。
+
 | 变量 | 说明 | 默认 |
 | --- | --- | --- |
-| `SQLEXPLAN_AES_KEY` | 数据源密码 AES 密钥（建议 ≥32 字符） | `changeme-sqlexplan-dev-aes-key-32b` |
+| `SQLEXPLAN_AES_KEY` | **必填**。数据源密码 AES 密钥，至少 32 个字符，不能含 `changeme` 等占位词；未设置或不合规时服务拒绝启动 | 无默认值 |
 | `SQLEXPLAN_BENCHMARK_ALLOW_TEMP_INDEX_VERIFICATION` | 是否允许基准测试在目标库创建/删除临时索引以验证收益 | `false` |
 | `sqlexplan.llm.enabled`（配置） | 是否调用 LLM | `false` |
 | `ANTHROPIC_API_KEY` | Claude API 密钥；仅在 `sqlexplan.llm.enabled=true` 时需要 | 未设置则 LLM 调用失败并降级 |

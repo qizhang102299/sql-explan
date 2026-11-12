@@ -38,7 +38,7 @@ public class SqlexplanProperties {
     /**
      * AES 密钥（Base64 编码的 32 字节，或任意长度字符串将经 SHA-256 派生）。
      */
-    private String aesKey = "changeme-sqlexplan-dev-aes-key-32b";
+    private String aesKey = "";
   }
 
   /**

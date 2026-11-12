@@ -31,7 +31,7 @@ logging:
 
 sqlexplan:
   crypto:
-    aes-key: ${SQLEXPLAN_AES_KEY:changeme-sqlexplan-dev-aes-key-32b}
+    aes-key: ${SQLEXPLAN_AES_KEY:}
   target-datasource:
     connection-timeout-ms: 5000
     query-timeout-seconds: 30

@@ -10,7 +10,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://sqlexplan-mysql:3306/sqlexplan?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
-      SQLEXPLAN_AES_KEY: ${SQLEXPLAN_AES_KEY:-changeme-sqlexplan-dev-aes-key-32b}
+      SQLEXPLAN_AES_KEY: ${SQLEXPLAN_AES_KEY:?请先设置环境变量 SQLEXPLAN_AES_KEY，可参考 .env.example}
       SQLEXPLAN_BENCHMARK_ALLOW_TEMP_INDEX_VERIFICATION: ${SQLEXPLAN_BENCHMARK_ALLOW_TEMP_INDEX_VERIFICATION:-false}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       SQLEXPLAN_LLM_ENABLED: ${SQLEXPLAN_LLM_ENABLED:-false}
